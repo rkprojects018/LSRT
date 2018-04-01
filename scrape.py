@@ -4,6 +4,7 @@ from datetime import datetime
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup as bs, Tag
+import json
 
 college_map = {
     'computing': 2,
@@ -22,10 +23,8 @@ def main():
     cur_year = datetime.now().year
     college_code = college_map['computing']
 
-    x_file = "years.txt"
-    y_file = "salaries.txt"
-
-    out_file = "data.csv"
+    out_file = "data.json"
+    avg_file = "avg.json"
 
     f = open(out_file,'w')
 
@@ -39,10 +38,12 @@ def main():
             soup: bs = bs(res.content, "lxml")
             salary = soup.find_all('td')[34].string
             if salary[0] == '$':
-                stripped = re.sub("[^0-9]\.", "", str(salary))
-                year_sals.append(stripped)
-        salaries[year] = year_sals
+                stripped = re.sub("[^0-9\.]", "", str(salary))
+                year_sals.append(float(stripped))
+        avg = sum(year_sals)/(len(year_sals))
+        salaries[year] = (year_sals, avg)
         year += 1
+    f.write(json.dumps(salaries))
     f.close()
 
 
