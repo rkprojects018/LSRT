@@ -1,49 +1,51 @@
-#!/usr/bin/python3
-
-from bs4 import BeautifulSoup
-import urllib.request as urllib2
 import re
+from datetime import datetime
 
-import csv
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup as bs, Tag
+import json
 
-data = 'salaries.csv'
-
-term = ['200608', '200702', '200708', '200802', '200808', '200902', '200908', '201002', '201008',
-        '201102', '201108', '201202', '201205', '201208', '201302', '201305', '201308', '201402',
-        '201405', '201408', '201502', '201505', '201508', '201602', '201605', '201608', '201702',
-        '201705', '201708']
-year_term = {'2006': '200608', '2007': '200702,200708', '2008': '200802,200808', '2009': '200902,200908',
-             '2010': '201002,201008', '2011': '201102,201108', '2012': '201202,201205,201208',
-             '2013': '201302,201305,201308', '2014': '201402,201405,201408',
-             '2015': '201502,201505,201508', '2016': '201602,201605,201608', '2017': '201702,201705,201708'}
-
-
-def scrape():
-    salaries = []
-
-    for i in year_term:
-
-        if i[:4] in i:
-
-            page_src = urllib2.urlopen("https://webapps.gatech.edu/cfcampus/adors/commencement/salary_report_result.cfm?termcode=" + year_term[i] + "&college=2&level=1&surveyid=105&Submit=Submit").read()
-            soup = BeautifulSoup(page_src, 'html.parser')
-            salary = soup.findAll("td")[34]
-            strip = re.sub(r"[^\w]", "", str(salary))
-            print(strip)
-
-            #if '' != strip:
-                #salaries += [float(strip)]
-
-    #avg = sum(salaries) / (len(salaries))
-    #with open(data, 'a') as f:
-    #   f.write(str(avg) + '\n')
-
-
-
+college_map = {
+    'computing': 2,
+    'design': 1,
+    'engineering': 3,
+    'sciences': 6,
+    'ivan': 4,
+    'multi': 7,
+    'business': 5,
+    'all': 'TOTAL'
+}
 
 
 def main():
-    scrape()
+    year = 2006
+    cur_year = datetime.now().year
+    college_code = college_map['computing']
+
+    out_file = "data.json"
+    avg_file = "avg.json"
+
+    f = open(out_file,'w')
+
+    salaries = {}
+
+    while year < cur_year:
+        year_sals = []
+        for term in ['02','05','08']:
+            url = f'''https://webapps.gatech.edu/cfcampus/adors/commencement/salary_report_result.cfm?termcode={year}{term}&college={college_code}&level=1&surveyid=105&Submit=Submit'''
+            res: requests.Request = requests.get(url)
+            soup: bs = bs(res.content, "lxml")
+            salary = soup.find_all('td')[34].string
+            if salary[0] == '$':
+                stripped = re.sub("[^0-9\.]", "", str(salary))
+                year_sals.append(float(stripped))
+        avg = sum(year_sals)/(len(year_sals))
+        salaries[year] = (year_sals, avg)
+        year += 1
+    f.write(json.dumps(salaries))
+    f.close()
+
 
 if __name__ == '__main__':
-  main()
+    main()
