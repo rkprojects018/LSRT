@@ -23,19 +23,16 @@ def scrape():
 
     for i in year_term:
 
-        print(re.sub("[^0-9]", ",", year_term[i]))
-        test = year_term[i].strip().split(",")
-        print(test)
-
         if i[:4] in i:
 
             page_src = urllib2.urlopen("https://webapps.gatech.edu/cfcampus/adors/commencement/salary_report_result.cfm?termcode=" + year_term[i] + "&college=2&level=1&surveyid=105&Submit=Submit").read()
             soup = BeautifulSoup(page_src, 'html.parser')
             salary = soup.findAll("td")[34]
-            strip = re.sub("[^0-9]\.", "", str(salary))
+            strip = re.sub(r"[^\w]", "", str(salary))
+            print(strip)
 
-            if '' != strip:
-                salaries += [float(strip)]
+            #if '' != strip:
+                #salaries += [float(strip)]
 
     #avg = sum(salaries) / (len(salaries))
     #with open(data, 'a') as f:

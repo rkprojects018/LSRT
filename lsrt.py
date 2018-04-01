@@ -13,11 +13,11 @@ years = [1,2,3,4,5,6,7,8,9,10]
 
 
 
-with open('salaries.csv', 'r') as data:
+with open('salaries.json', 'r') as data:
   # Our list with salaries (Y axis)
   salaries = []  # adding dummy data for now
   for i in csv.reader(data):
-      salaries.append(i[0])
+      salaries.append(i[1])
 
 
 
