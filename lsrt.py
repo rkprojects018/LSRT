@@ -1,25 +1,25 @@
 #!/usr/bin/python3
 
+import json
 '''
 These lists will have to modified to take our scraped data from the excel file.
 '''
 
-import csv
 
 '''
 Our list with the years (X axis).
 '''
-years = [1,2,3,4,5,6,7,8,9,10]
+years = [1,2,3,4,5,6,7,8,9,10,11,12]
 
 
 
 with open('salaries.json', 'r') as data:
   # Our list with salaries (Y axis)
   salaries = []  # adding dummy data for now
-  for i in csv.reader(data):
-      salaries.append(i[1])
-
-
+  json_obj = json.load(data)
+  for i in json_obj:
+      salaries.append(json_obj[i][1])
+print(salaries)
 
 # Summing up the Years (X)
 def sumYears():
@@ -60,13 +60,13 @@ def computeReg():
   '''
   InterceptEQ = (Summation of Y - (Slope * Summation of X)) / (Number of data points)
   '''
-  partialIntercept = slope - (sumYears())
+  partialIntercept = (slope * sumYears())
   partialInterceptNumerator = sumSalaries() - partialIntercept
   intercept = partialInterceptNumerator / (float(len(years)))
   #print(numerator)
 
-  #print(slope)
-  #print(intercept)
+  print(slope)
+  print(intercept)
 
 
   return 1
@@ -82,3 +82,4 @@ def main():
 
 if __name__ == '__main__':
   main()
+
