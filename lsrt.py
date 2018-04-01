@@ -4,14 +4,21 @@
 These lists will have to modified to take our scraped data from the excel file.
 '''
 
+import csv
+
 '''
 Our list with the years (X axis).
 '''
 years = [1,2,3,4,5,6,7,8,9,10]
 
 
-# Our list with salaries (Y axis)
-salaries = [100000,90000,95000,85000,60000,65000,87000,105000,110000,75000] #adding dummy data for now
+
+with open('salaries.csv', 'r') as data:
+  # Our list with salaries (Y axis)
+  salaries = []  # adding dummy data for now
+  for i in csv.reader(data):
+      salaries.append(i[0])
+
 
 
 # Summing up the Years (X)
